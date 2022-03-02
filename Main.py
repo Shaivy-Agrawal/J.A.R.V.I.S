@@ -1,6 +1,6 @@
 from allPackage import *
 
-engine = pyttsx3.init('sapi5');
+engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('rate', 170)
 # print(voices)
@@ -16,6 +16,8 @@ for voice in voices:
 engine.setProperty('voice', voices[0].id)
 
 # FEATURES
+
+
 def Speak(audio):
     print("  ")
     print(f": {audio}")
@@ -23,14 +25,17 @@ def Speak(audio):
     engine.say(audio)
     engine.runAndWait()
 
+
 def Speak_assistant(audio):
     x = gTTS(audio)
     # playsound(x)
     x.save('assistant.mp3')
     playsound('assistant.mp3')
 
+
 def Speak_start(path):
     playsound(path)
+
 
 def TakeCommand():
     r = sr.Recognizer()
@@ -40,7 +45,7 @@ def TakeCommand():
         audio = r.listen(source)
     try:
         print(": Recognizing ...")
-        query = r.recognize_google(audio,language='en-in')
+        query = r.recognize_google(audio, language='en-in')
         print(f"Your Command : {query}\n")
     except:
         return ""
@@ -48,6 +53,7 @@ def TakeCommand():
     # da.write(f": {query}")
     # da.close
     return query.lower()
+
 
 def TakeCommand_hindi():
     r = sr.Recognizer()
@@ -63,41 +69,45 @@ def TakeCommand_hindi():
         return "none"
     return query.lower
 
+
 def GoogleSearch(term):
-    query=term.replace("jarvis","")
-    query = query.replace("what is","")
-    query=query.replace("how to","")
-    query=query.replace("what is","")
-    query=query.replace("what do you mean by","")
-    query=query.replace("google search","")
+    query = term.replace("jarvis", "")
+    query = query.replace("what is", "")
+    query = query.replace("how to", "")
+    query = query.replace("what is", "")
+    query = query.replace("what do you mean by", "")
+    query = query.replace("google search", "")
     writeab = str(query)
     Query = str(term)
-    file = open("C:\\Users\\91963\\Desktop\\JARVIS\\Data.txt","a")
+    file = open("C:\\Users\\91963\\Desktop\\JARVIS\\Data.txt", "a")
     file.write(Query+"\n")
     file.close()
     pywhatkit.search(query)
     if 'how to' in Query:
         max_result = 1
-        how_to_func = search_wikihow(query=query, max_results= max_result)
+        how_to_func = search_wikihow(query=query, max_results=max_result)
         assert len(how_to_func) == 1
         Speak(how_to_func[0].summary)
     else:
-        search = wikipedia.summary(query,2)
+        search = wikipedia.summary(query, 2)
         Speak(f"According to your search {search}")
         Speak("This might also help you sir")
-        url="www."+query+".com"
-        url = url.replace(" ","")
+        url = "www."+query+".com"
+        url = url.replace(" ", "")
         web.open(url, new=1)
-    google_Crawler = GoogleImageCrawler(storage = {'root_dir': r'C:\Users\91963\Desktop\JARVIS\DataBase\GooglePhotos'})
-    google_Crawler.crawl(keyword = writeab, max_num = 10)
+    google_Crawler = GoogleImageCrawler(
+        storage={'root_dir': r'C:\Users\91963\Desktop\JARVIS\DataBase\GooglePhotos'})
+    google_Crawler.crawl(keyword=writeab, max_num=10)
+
 
 def YoutubeSearch(term):
-    term = term.replace("youtube search","")
+    term = term.replace("youtube search", "")
     result = "https://www.youtube.com/results?search_query=" + term
     web.open(result)
     Speak("This is what I found for you Sir")
     pywhatkit.playonyt(term)
     Speak("This may also help you Sir")
+
 
 def HandGesture():
     cap = cv2.VideoCapture(0)
@@ -106,55 +116,57 @@ def HandGesture():
     hands = mpHands.Hands()
     mpDraw = mp.solutions.drawing_utils
 
-
     devices = AudioUtilities.GetSpeakers()
     interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
     volume = cast(interface, POINTER(IAudioEndpointVolume))
 
-    volMin,volMax = volume.GetVolumeRange()[:2]
+    volMin, volMax = volume.GetVolumeRange()[:2]
 
     while True:
-        success,img = cap.read()
-        imgRGB = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
+        success, img = cap.read()
+        imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         results = hands.process(imgRGB)
 
         lmList = []
         if results.multi_hand_landmarks:
             for handlandmark in results.multi_hand_landmarks:
-                for id,lm in enumerate(handlandmark.landmark):
-                    h,w,_ = img.shape
-                    cx,cy = int(lm.x*w),int(lm.y*h)
-                    lmList.append([id,cx,cy])
-                mpDraw.draw_landmarks(img,handlandmark,mpHands.HAND_CONNECTIONS)
+                for id, lm in enumerate(handlandmark.landmark):
+                    h, w, _ = img.shape
+                    cx, cy = int(lm.x*w), int(lm.y*h)
+                    lmList.append([id, cx, cy])
+                mpDraw.draw_landmarks(
+                    img, handlandmark, mpHands.HAND_CONNECTIONS)
 
         if lmList != []:
-            x1,y1 = lmList[4][1],lmList[4][2]
-            x2,y2 = lmList[8][1],lmList[8][2]
+            x1, y1 = lmList[4][1], lmList[4][2]
+            x2, y2 = lmList[8][1], lmList[8][2]
 
-            cv2.circle(img,(x1,y1),4,(255,0,0),cv2.FILLED)
-            cv2.circle(img,(x2,y2),4,(255,0,0),cv2.FILLED)
-            cv2.line(img,(x1,y1),(x2,y2),(255,0,0),3)
+            cv2.circle(img, (x1, y1), 4, (255, 0, 0), cv2.FILLED)
+            cv2.circle(img, (x2, y2), 4, (255, 0, 0), cv2.FILLED)
+            cv2.line(img, (x1, y1), (x2, y2), (255, 0, 0), 3)
 
-            length = hypot(x2-x1,y2-y1)
+            length = hypot(x2-x1, y2-y1)
 
-            vol = np.interp(length,[15,220],[volMin,volMax])
+            vol = np.interp(length, [15, 220], [volMin, volMax])
             # print(vol,length)
             volume.SetMasterVolumeLevel(vol, None)
             # Hand range 15 - 220
             # Volume range -63.5 - 0.0
 
-        cv2.imshow('Image',img)
-        if cv2.waitKey(1) & 0xff==ord('q'):
+        cv2.imshow('Image', img)
+        if cv2.waitKey(1) & 0xff == ord('q'):
             break
+
 
 def currentTime():
     now = datetime.now()
     current_time = now.strftime("%H:%M")
     compare_time = now.strftime("12:00")
-    if(current_time<compare_time):
+    if(current_time < compare_time):
         Speak(f"Good Morning Sir, it is {current_time}")
     else:
         Speak(f"Good Evening Sir, it is {current_time}")
+
 
 def fetchLocation():
     g = geocoder.ip('me')
@@ -162,12 +174,14 @@ def fetchLocation():
     locname = geoLoc.reverse(g.latlng)
     Speak(locname.address)
 
+
 def fetchWeather(query):
     lis = list(query.split(" "))
     length = len(lis)
     city_name = lis[length-1]
     print(city_name)
-    complete_url = base_url + "appid=" + api_weather + "&q=" + city_name + "&units=metric"
+    complete_url = base_url + "appid=" + api_weather + \
+        "&q=" + city_name + "&units=metric"
     response = requests.get(complete_url)
     x = response.json()
     if x["cod"] != "404":
@@ -175,12 +189,15 @@ def fetchWeather(query):
         current_temperature = y["temp"]
         z = x["weather"]
         weather_desc = z[0]["description"]
-        final_weather =  weather_desc + "y"
-        Speak(f"The temprature in {city_name} is {current_temperature} centigrade and it is {final_weather}")
+        final_weather = weather_desc + "y"
+        Speak(
+            f"The temprature in {city_name} is {current_temperature} centigrade and it is {final_weather}")
     else:
         print("City Not Found")
 
 # TASK EXECUTION FUNCTION
+
+
 def TaskExe():
     while True:
         query = TakeCommand()
