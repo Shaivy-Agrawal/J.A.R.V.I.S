@@ -20,3 +20,5 @@ from datetime import datetime
 import geocoder
 from geopy.geocoders import Nominatim
 import requests
+from random import choice
+from utils import *

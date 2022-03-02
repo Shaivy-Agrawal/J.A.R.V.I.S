@@ -1,3 +1,5 @@
+from datetime import date
+from random import choice
 from allPackage import *
 
 engine = pyttsx3.init('sapi5')
@@ -18,16 +20,16 @@ engine.setProperty('voice', voices[0].id)
 # FEATURES
 
 
-def Speak(audio):
+def Speak(text):
     print("  ")
-    print(f": {audio}")
+    print(f": {text}")
     print("  ")
-    engine.say(audio)
+    engine.say(text)
     engine.runAndWait()
 
 
-def Speak_assistant(audio):
-    x = gTTS(audio)
+def Speak_assistant(text):
+    x = gTTS(text)
     # playsound(x)
     x.save('assistant.mp3')
     playsound('assistant.mp3')
@@ -201,26 +203,35 @@ def fetchWeather(query):
 def TaskExe():
     while True:
         query = TakeCommand()
-        if 'google search' in query:
-            GoogleSearch(query)
-        elif 'wake up' in query:
+        tag = any(word in query.lower() for word in quit_tags)
+
+        if 'wake up' in query:
             currentTime()
-        elif 'youtube search' in query:
-            YoutubeSearch(query)
-        elif 'hand gesture' in query:
-            HandGesture()
-        elif 'location' in query:
-            fetchLocation()
-        elif 'weather' in query:
-            fetchWeather(query)
-        elif 'bye' in query:
-            Speak("Bye Sir, Have a good day")
-            exit()
-        elif 'get lost' in query:
-            Speak('Alright, No need to be rude, I will leave you alone')
-            exit()
+            continue
+        if not tag:
+            Speak(choice(opening_text))
+            if 'google search' in query:
+                GoogleSearch(query)
+            elif 'youtube search' in query:
+                YoutubeSearch(query)
+            elif 'hand gesture' in query:
+                HandGesture()
+            elif 'location' in query:
+                fetchLocation()
+            elif 'weather' in query:
+                fetchWeather(query)
+            else:
+                Speak("Sorry Sir, I didn't get you")
         else:
-            Speak("Sorry Sir, I didn't get you")
+            if 'get lost' in query:
+                Speak('Alright, No need to be rude, I will leave you alone')
+                exit()
+            hour = datetime.now().hour
+            if hour >= 21 and hour < 6:
+                Speak("Good Night Sir, Take care!")
+            else:
+                Speak(choice(closing_text))
+            exit()
 
 
 # FUNCTION CALLS
