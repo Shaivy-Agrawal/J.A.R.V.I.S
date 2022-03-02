@@ -5,6 +5,9 @@ voices = engine.getProperty('voices')
 engine.setProperty('rate', 170)
 # print(voices)
 
+api_weather = "6035ecb9ddbe4b9dc4d4fdd31a8325bf"
+base_url = "http://api.openweathermap.org/data/2.5/weather?"
+
 for voice in voices:
     # print(voice, voice.id)
     engine.setProperty('voice', voice.id)
@@ -12,6 +15,7 @@ for voice in voices:
 
 engine.setProperty('voice', voices[0].id)
 
+# FEATURES
 def Speak(audio):
     print("  ")
     print(f": {audio}")
@@ -136,7 +140,6 @@ def HandGesture():
             vol = np.interp(length,[15,220],[volMin,volMax])
             # print(vol,length)
             volume.SetMasterVolumeLevel(vol, None)
-
             # Hand range 15 - 220
             # Volume range -63.5 - 0.0
 
@@ -144,27 +147,67 @@ def HandGesture():
         if cv2.waitKey(1) & 0xff==ord('q'):
             break
 
+def currentTime():
+    now = datetime.now()
+    current_time = now.strftime("%H:%M")
+    compare_time = now.strftime("12:00")
+    if(current_time<compare_time):
+        Speak(f"Good Morning Sir, it is {current_time}")
+    else:
+        Speak(f"Good Evening Sir, it is {current_time}")
+
+def fetchLocation():
+    g = geocoder.ip('me')
+    geoLoc = Nominatim(user_agent="GetLoc")
+    locname = geoLoc.reverse(g.latlng)
+    Speak(locname.address)
+
+def fetchWeather(query):
+    lis = list(query.split(" "))
+    length = len(lis)
+    city_name = lis[length-1]
+    print(city_name)
+    complete_url = base_url + "appid=" + api_weather + "&q=" + city_name + "&units=metric"
+    response = requests.get(complete_url)
+    x = response.json()
+    if x["cod"] != "404":
+        y = x["main"]
+        current_temperature = y["temp"]
+        z = x["weather"]
+        weather_desc = z[0]["description"]
+        final_weather =  weather_desc + "y"
+        Speak(f"The temprature in {city_name} is {current_temperature} centigrade and it is {final_weather}")
+    else:
+        print("City Not Found")
+
+# TASK EXECUTION FUNCTION
 def TaskExe():
     while True:
         query = TakeCommand()
         if 'google search' in query:
             GoogleSearch(query)
+        elif 'wake up' in query:
+            currentTime()
         elif 'youtube search' in query:
             YoutubeSearch(query)
         elif 'hand gesture' in query:
             HandGesture()
+        elif 'location' in query:
+            fetchLocation()
+        elif 'weather' in query:
+            fetchWeather(query)
         elif 'bye' in query:
+            Speak("Bye Sir, Have a good day")
             exit()
         elif 'get lost' in query:
-            exit()
-        elif 'fuck off' in query:
+            Speak('Alright, No need to be rude, I will leave you alone')
             exit()
         else:
-            print("none")
+            Speak("Sorry Sir, I didn't get you")
 
 
-
+# FUNCTION CALLS
 # Speak_start("C:\\Users\\91963\\Desktop\\JARVIS\\DataBase\\Voices\\Brian\\1.mp3")
-Speak("Welcome Back Sir, How can I help you?")
 # Speak_assistant("सुप्रभात सर, मैं आपकी कैसे मदद कर सकती हूँ?")
+Speak("Welcome Back Sir, How can I help you?")
 TaskExe()
